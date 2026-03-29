@@ -4,6 +4,7 @@ import logging
 
 from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import SERVICE_RELOAD
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -31,3 +32,12 @@ class YandexIntentsExportButton(ButtonEntity):
     async def async_press(self) -> None:
         out_path = await async_export_intents(self.hass, self._entry_data)
         _LOGGER.info("Интенты экспортированы в %s", out_path)
+
+        await self.hass.services.async_call(
+            DOMAIN,
+            SERVICE_RELOAD,
+            {},
+            blocking=True,
+        )
+
+        _LOGGER.info("Интеграция %s перезагружена, сценарии синхронизированы", DOMAIN)
