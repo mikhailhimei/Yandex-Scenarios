@@ -15,8 +15,6 @@ CONF_COOKIE = "cookie"
 CONF_UID = "uid"
 CONF_EXPORT_IP = "export_ip"
 CONF_EXPORT_PATH = "export_path"
-CONF_BUTTON_ENTITY_ID = "button_entity_id"
-CONF_BUTTON_TEXT = "button_text"
 
 DEFAULT_EXPORT_PATH = "/yandex-intents"
 EXPORT_FILENAME = "yandex_intents.yaml"

@@ -9,8 +9,6 @@ from homeassistant.helpers.typing import ConfigType
 
 from custom_components.yandex_station_intents import CONF_AUTOSYNC
 from custom_components.yandex_station_intents.const import (
-    CONF_BUTTON_ENTITY_ID,
-    CONF_BUTTON_TEXT,
     CONF_MODE,
     CONF_EXPORT_IP,
     CONF_EXPORT_PATH,
@@ -56,11 +54,3 @@ class ConfigEntryData:
     @property
     def export_path(self) -> str:
         return str(self.entry.options.get(CONF_EXPORT_PATH, DEFAULT_EXPORT_PATH)).strip() or DEFAULT_EXPORT_PATH
-
-    @property
-    def button_entity_id(self) -> str:
-        return str(self.entry.options.get(CONF_BUTTON_ENTITY_ID, "")).strip()
-
-    @property
-    def button_text(self) -> str:
-        return str(self.entry.options.get(CONF_BUTTON_TEXT, "")).strip()
