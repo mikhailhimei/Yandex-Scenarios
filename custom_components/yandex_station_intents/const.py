@@ -13,6 +13,11 @@ CONF_AUTOSYNC = "autosync"
 CONF_X_TOKEN = "x_token"
 CONF_COOKIE = "cookie"
 CONF_UID = "uid"
+CONF_EXPORT_IP = "export_ip"
+CONF_EXPORT_PATH = "export_path"
+
+DEFAULT_EXPORT_PATH = "/yandex-intents"
+EXPORT_FILENAME = "yandex_intents.yaml"
 
 INTENT_PLAYER_NAME_PREFIX = "Интенты"
 INTENT_ID_MARKER = "---"

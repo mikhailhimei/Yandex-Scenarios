@@ -4,7 +4,7 @@ import logging
 import re
 from typing import Final
 
-from homeassistant.components import media_player
+from homeassistant.components import button, media_player
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP, SERVICE_RELOAD
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -36,7 +36,8 @@ from .yandex_session import AuthException, YandexSession
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: Final[list[str]] = [media_player.DOMAIN]
+COMMON_PLATFORMS: Final[list[str]] = [button.DOMAIN]
+DEVICE_PLATFORMS: Final[list[str]] = [media_player.DOMAIN]
 ISSUE_ID_MISSING_INTENT_PLAYER = "missing_intent_player"
 
 
@@ -226,11 +227,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     entry_data = ConfigEntryData(entry, yaml_config=component.yaml_config, quasar=quasar, intent_manager=manager)
     component.entry_datas[entry.entry_id] = entry_data
+    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
+
+    await hass.config_entries.async_forward_entry_setups(entry, COMMON_PLATFORMS)
 
     intent_player_device = quasar.get_intent_player_device(entry_data.media_player_entity_id)
 
     if entry_data.connection_mode == ConnectionMode.DEVICE:
-        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+        await hass.config_entries.async_forward_entry_setups(entry, DEVICE_PLATFORMS)
 
         if not intent_player_device:
             ir.async_create_issue(
@@ -275,13 +279,19 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if entry_data.event_stream:
         hass.async_create_task(entry_data.event_stream.disconnect())
 
+    platforms = list(COMMON_PLATFORMS)
     if entry_data.connection_mode == ConnectionMode.DEVICE:
-        unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-        if unload_ok:
-            component.entry_datas.pop(entry.entry_id)
-        return unload_ok
+        platforms.extend(DEVICE_PLATFORMS)
 
-    return True
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, platforms)
+    if unload_ok:
+        component.entry_datas.pop(entry.entry_id)
+
+    return unload_ok
+
+
+async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def _async_setup_intents(

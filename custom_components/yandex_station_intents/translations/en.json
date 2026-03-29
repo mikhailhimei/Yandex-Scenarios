@@ -36,6 +36,18 @@
       }
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Export settings",
+        "description": "Configure the address used by the export button.",
+        "data": {
+          "export_ip": "IP address or URL",
+          "export_path": "Request path"
+        }
+      }
+    }
+  },
   "issues": {
     "reauth_required": {
       "title": "Требуется повторная аутентификация",

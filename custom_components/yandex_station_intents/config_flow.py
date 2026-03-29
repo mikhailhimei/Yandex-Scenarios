@@ -3,12 +3,12 @@ from functools import lru_cache
 import json
 import logging
 
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.helpers.typing import ConfigType
 import voluptuous as vol
 
 from . import DOMAIN, YandexSession
-from .const import CONF_UID, CONF_X_TOKEN, YANDEX_STATION_DOMAIN
+from .const import CONF_EXPORT_IP, CONF_EXPORT_PATH, CONF_UID, CONF_X_TOKEN, DEFAULT_EXPORT_PATH, YANDEX_STATION_DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,6 +20,10 @@ class AuthMethod(StrEnum):
 
 
 class YandexSmartHomeIntentsFlowHandler(ConfigFlow, domain=DOMAIN):
+    @staticmethod
+    def async_get_options_flow(config_entry):
+        return YandexSmartHomeIntentsOptionsFlow(config_entry)
+
     @property
     @lru_cache()
     def _session(self) -> YandexSession:
@@ -106,4 +110,35 @@ class YandexSmartHomeIntentsFlowHandler(ConfigFlow, domain=DOMAIN):
             errors=errors,
             description_placeholders={"error_description": error_description or ""},
             data_schema=vol.Schema({vol.Required(step_id): str}),
+        )
+
+
+class YandexSmartHomeIntentsOptionsFlow(OptionsFlow):
+    def __init__(self, config_entry) -> None:
+        self._config_entry = config_entry
+
+    async def async_step_init(self, user_input: ConfigType | None = None) -> ConfigFlowResult:
+        if user_input is not None:
+            return self.async_create_entry(
+                title="",
+                data={
+                    CONF_EXPORT_IP: user_input[CONF_EXPORT_IP].strip(),
+                    CONF_EXPORT_PATH: user_input[CONF_EXPORT_PATH].strip() or DEFAULT_EXPORT_PATH,
+                },
+            )
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_EXPORT_IP,
+                        default=self._config_entry.options.get(CONF_EXPORT_IP, ""),
+                    ): str,
+                    vol.Required(
+                        CONF_EXPORT_PATH,
+                        default=self._config_entry.options.get(CONF_EXPORT_PATH, DEFAULT_EXPORT_PATH),
+                    ): str,
+                }
+            ),
         )
