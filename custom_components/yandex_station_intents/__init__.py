@@ -1,10 +1,11 @@
 import asyncio
 from dataclasses import dataclass
+import importlib
 import logging
 import re
 from typing import Final
 
-from homeassistant.components import button, media_player
+from homeassistant.components import media_player
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP, SERVICE_RELOAD
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -36,7 +37,7 @@ from .yandex_session import AuthException, YandexSession
 
 _LOGGER = logging.getLogger(__name__)
 
-COMMON_PLATFORMS: Final[list[str]] = [button.DOMAIN]
+COMMON_PLATFORMS: Final[list[str]] = ["button"] if importlib.util.find_spec("homeassistant.components.button") else []
 DEVICE_PLATFORMS: Final[list[str]] = [media_player.DOMAIN]
 ISSUE_ID_MISSING_INTENT_PLAYER = "missing_intent_player"
 
