@@ -27,10 +27,15 @@ def _build_export_url(ip_or_url: str, request_path: str) -> str:
     return f"http://{value}{path}"
 
 
-def _write_export_file(hass: HomeAssistant, data: list[str] | str) -> str:
-    out_path = Path(hass.config.path(EXPORT_FILENAME))
-    out_path.parent.mkdir(parents=True, exist_ok=True)
+def _get_export_paths(hass: HomeAssistant) -> list[Path]:
+    paths = [Path(hass.config.path(EXPORT_FILENAME))]
+    homeassistant_path = Path("/homeassistant") / EXPORT_FILENAME
+    if homeassistant_path not in paths:
+        paths.append(homeassistant_path)
+    return paths
 
+
+def _write_export_file(hass: HomeAssistant, data: list[str] | str) -> str:
     if isinstance(data, str):
         content = data
     else:
@@ -38,8 +43,25 @@ def _write_export_file(hass: HomeAssistant, data: list[str] | str) -> str:
             raise HomeAssistantError("Ответ должен содержать строку или список строк")
         content = "\n".join(data)
 
-    out_path.write_text(content, encoding="utf-8")
-    return str(out_path)
+    saved_paths: list[Path] = []
+    errors: list[str] = []
+
+    for out_path in _get_export_paths(hass):
+        try:
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(content, encoding="utf-8")
+            saved_paths.append(out_path)
+        except OSError as err:
+            errors.append(f"{out_path}: {err}")
+
+    if not saved_paths:
+        raise HomeAssistantError("Не удалось сохранить файл экспорта: " + "; ".join(errors))
+
+    preferred_path = Path("/homeassistant") / EXPORT_FILENAME
+    if preferred_path in saved_paths:
+        return str(preferred_path)
+
+    return str(saved_paths[0])
 
 
 async def async_export_intents(hass: HomeAssistant, entry_data: ConfigEntryData) -> str:

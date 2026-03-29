@@ -40,10 +40,12 @@
     "step": {
       "init": {
         "title": "Export settings",
-        "description": "Configure the address used by the export button.",
+        "description": "Configure export and the optional message sent to Alice after pressing the button.",
         "data": {
           "export_ip": "IP address or URL",
-          "export_path": "Request path"
+          "export_path": "Request path",
+          "button_entity_id": "Alice speaker entity_id",
+          "button_text": "Message text or Jinja template"
         }
       }
     }

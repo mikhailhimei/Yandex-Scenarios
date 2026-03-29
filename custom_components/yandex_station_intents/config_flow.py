@@ -8,7 +8,16 @@ from homeassistant.helpers.typing import ConfigType
 import voluptuous as vol
 
 from . import DOMAIN, YandexSession
-from .const import CONF_EXPORT_IP, CONF_EXPORT_PATH, CONF_UID, CONF_X_TOKEN, DEFAULT_EXPORT_PATH, YANDEX_STATION_DOMAIN
+from .const import (
+    CONF_BUTTON_ENTITY_ID,
+    CONF_BUTTON_TEXT,
+    CONF_EXPORT_IP,
+    CONF_EXPORT_PATH,
+    CONF_UID,
+    CONF_X_TOKEN,
+    DEFAULT_EXPORT_PATH,
+    YANDEX_STATION_DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -124,6 +133,8 @@ class YandexSmartHomeIntentsOptionsFlow(OptionsFlow):
                 data={
                     CONF_EXPORT_IP: user_input[CONF_EXPORT_IP].strip(),
                     CONF_EXPORT_PATH: user_input[CONF_EXPORT_PATH].strip() or DEFAULT_EXPORT_PATH,
+                    CONF_BUTTON_ENTITY_ID: user_input[CONF_BUTTON_ENTITY_ID].strip(),
+                    CONF_BUTTON_TEXT: user_input[CONF_BUTTON_TEXT].strip(),
                 },
             )
 
@@ -138,6 +149,14 @@ class YandexSmartHomeIntentsOptionsFlow(OptionsFlow):
                     vol.Required(
                         CONF_EXPORT_PATH,
                         default=self._config_entry.options.get(CONF_EXPORT_PATH, DEFAULT_EXPORT_PATH),
+                    ): str,
+                    vol.Required(
+                        CONF_BUTTON_ENTITY_ID,
+                        default=self._config_entry.options.get(CONF_BUTTON_ENTITY_ID, ""),
+                    ): str,
+                    vol.Required(
+                        CONF_BUTTON_TEXT,
+                        default=self._config_entry.options.get(CONF_BUTTON_TEXT, ""),
                     ): str,
                 }
             ),
