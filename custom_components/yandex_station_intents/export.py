@@ -69,7 +69,7 @@ async def async_export_intents(hass: HomeAssistant, entry_data: ConfigEntryData)
     session = async_get_clientsession(hass)
 
     try:
-        async with session.get(url) as response:
+        async with session.post(url, json={"account": entry_data.account_name}) as response:
             response.raise_for_status()
             payload = await response.json()
     except ClientError as err:

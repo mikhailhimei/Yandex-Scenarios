@@ -54,3 +54,7 @@ class ConfigEntryData:
     @property
     def export_path(self) -> str:
         return str(self.entry.options.get(CONF_EXPORT_PATH, DEFAULT_EXPORT_PATH)).strip() or DEFAULT_EXPORT_PATH
+
+    @property
+    def account_name(self) -> str:
+        return str(self.entry.title or self.entry.unique_id or "").strip()
